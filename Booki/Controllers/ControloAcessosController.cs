@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Booki.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -15,6 +16,11 @@ namespace Booki.Controllers
         public ActionResult Registo()
         {
             return View();
+        }
+        [HttpPost]
+        public ActionResult Registo(ControloAcessosModel model)
+        {
+            return Json(new { });
         }
     }
 }

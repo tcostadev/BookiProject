@@ -1,8 +1,22 @@
-﻿
+﻿@model Booki.Models.ControloAcessosModel
+
 @{
     ViewBag.Title = "Login";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Login</h2>
+@using (Html.BeginForm())
+{
+    <h2>Formulário de Login</h2>
 
+    <div class="row">
+        <div class="col-md-12">
+            @Html.TextBoxFor(o => o.Username)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.PasswordFor(o => o.Username)
+        </div>
+    </div>
+}
