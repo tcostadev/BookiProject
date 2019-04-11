@@ -6,23 +6,25 @@ using System.Web.Mvc;
 
 namespace Booki.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
+            ViewBag.LoggedIn = IsLoggedIn();
+
             return View();
         }
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.LoggedIn = IsLoggedIn();
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.LoggedIn = IsLoggedIn();
 
             return View();
         }

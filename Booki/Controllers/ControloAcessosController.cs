@@ -65,7 +65,11 @@ namespace Booki.Controllers
             }
                 
 
-            return Json(new { });
+            return Json(new
+            {
+                Redirect = true,
+                UrlRedirect = Url.Action("Index", "Home")
+            });
         }
 
         public ActionResult Registo()
@@ -119,6 +123,12 @@ namespace Booki.Controllers
             }
             
             return Json(new { });
+        }
+        public ActionResult Logout()
+        {
+            ViewBag.LoggedIn = false;
+            LogOutUser();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

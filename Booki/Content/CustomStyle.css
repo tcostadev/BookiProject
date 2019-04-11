@@ -33,3 +33,13 @@ span.field-validation-error {
     text-align: center;
     display: inline-block;
 }
+
+.li-user {
+    margin-right: 15px;
+    border-bottom: 1px solid red;
+    font-weight: bold;
+}
+
+.dropdown-menu {
+    right: 0;
+}

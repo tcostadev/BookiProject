@@ -6,8 +6,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Booki</title>
-    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/CustomJS")
+    
+    @Styles.Render("~/Content/css")
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 </head>
@@ -23,20 +27,29 @@
                     <a class="nav-link" href="@Url.Action("Index", "Home")">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("About", "Home")">Reservar Hoteis Vasco</a>
+                    <a class="nav-link" href="@Url.Action("About", "Home")">Reservar Hoteis</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Contact", "Home")">Reservar Voos Teste Tiago</a>
+                    <a class="nav-link" href="@Url.Action("Contact", "Home")">Reservar Voos</a>
                 </li>
             </ul>
             <ul class="navbar-nav float-right ml-auto">
                 @if (ViewBag.LoggedIn == true)
                 {
-                    var userLogin = (LoginModel)ViewBag.UserLogin;
+                    var userLogin = (LoginModel)HttpContext.Current.Session["SessionUtilizador"];
                     
-
-                    <li><label>@userLogin.Nome</label></li>
-                    <li>Sair</li>
+                    <li class="nav-item dropdown li-user">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @userLogin.Nome
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="#">Ver Reservas</a>
+                            <a class="dropdown-item" href="#">Editar perfil</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Logout", "ControloAcessos")">Sair</a>
+                    </li>
                 }
                 else
                 {
@@ -58,9 +71,7 @@
             <p>&copy; @DateTime.Now.Year - Booki Reservas online</p>
         </footer>
     </div>
-
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+     
     @RenderSection("scripts", required: false)
 </body>
 </html>

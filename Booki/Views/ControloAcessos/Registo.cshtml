@@ -5,7 +5,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@using (Html.BeginForm())
+@using (Ajax.BeginForm("Registo", "ControloAcessos", new AjaxOptions
+{
+    OnSuccess = "OnSucessForm"
+}))
 {
     <style>
         .content-controlo-acesso {
@@ -77,7 +80,13 @@
                 @Html.ValidationMessageFor(o => o.Username)
             </div>
         </div>
-
-        <button class="btn btn-primary" type="submit">Registar</button>
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                <a href="@Url.Action("Login", "ControloAcessos")">Já possui uma conta? Faça login.</a>
+                <button class="btn btn-primary float-right" type="submit">Registar</button>
+            </div>
+        </div>
     </div>
 }

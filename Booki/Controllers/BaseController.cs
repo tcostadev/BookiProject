@@ -16,6 +16,10 @@ namespace Booki.Controllers
         {
             Session[SessionUtilizador] = userLoggedIn;
         }
+        public bool IsLoggedIn()
+        {
+            return Session[SessionUtilizador] != null;
+        }
         public void LogOutUser()
         {
             Session[SessionUtilizador] = null;
