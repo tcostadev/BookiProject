@@ -26,10 +26,9 @@
                     <a class="nav-link" href="@Url.Action("About", "Home")">Reservar Hoteis</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Contact", "Home")">Reservar Voos Tiago</a>
+                    <a class="nav-link" href="@Url.Action("Contact", "Home")">Reservar Voos</a>
                 </li>
             </ul>
-            <label> Vasco Eu</label>
             <ul class="navbar-nav float-right ml-auto">
                 @if (ViewBag.LoggedIn == true)
                 {
@@ -51,8 +50,6 @@
             </ul>
         </div>
     </nav>
-
-    <label>Tiago Costa</label>
 
     <div class="container body-content">
         @RenderBody()
