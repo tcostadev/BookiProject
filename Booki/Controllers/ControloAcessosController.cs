@@ -5,23 +5,87 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Booki.Helper;
 
 namespace Booki.Controllers
 {
     public class ControloAcessosController : BaseController
     {
-    
         public ActionResult Login()
         {
             return View();
         }
+        [HttpPost]
+        public ActionResult Login(LoginModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return PartialView(model);
+            }
+            
+            string sql = $@"SELECT u.id_user, u.nome_completo
+                                FROM utilizador u 
+                            WHERE 1=1
+                                AND u.username = @username
+                                AND u.password = @password";
+
+            bool loggedIn = false;
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+
+                command.Parameters.AddWithValue("@username", model.Username);
+                command.Parameters.AddWithValue("@password", model.Password);
+                
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        loggedIn = !string.IsNullOrEmpty(reader["id_user"].ToString());
+                        model.Nome = reader["nome_completo"].ToString();
+                    }
+                        
+                }
+
+                connection.Close();
+            }
+
+            if (loggedIn)
+            {
+                LogInUser(model);
+                ViewBag.LoggedIn = loggedIn;
+                ViewBag.UserLogin = model;
+            }
+            else
+            {
+                ModelState.AddModelError("Password", "Credenciais erradas");
+                return PartialView(model);
+            }
+                
+
+            return Json(new { });
+        }
+
         public ActionResult Registo()
         {
-            return View();
+            var model = new RegistoModel
+            {
+                ListaLocalizacoes = CustomHelper.GetListaLocalizacoes(ConnectionString)
+            };
+            
+            return View(model);
         }
         [HttpPost]
-        public ActionResult Registo(ControloAcessosModel model)
+        public ActionResult Registo(RegistoModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                model.ListaLocalizacoes = CustomHelper.GetListaLocalizacoes(ConnectionString);
+                return PartialView(model);
+            }
+                
             string sql = $@"INSERT INTO utilizador (
                                     [username],
                                     [password],

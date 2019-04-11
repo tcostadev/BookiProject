@@ -1,8 +1,35 @@
-﻿body {
-
-}
-
-footer{
+﻿footer{
     position: absolute;
     bottom: 0;
+}
+
+input{
+    max-width: initial;
+}
+
+span.field-validation-error {
+    font-size: 11px;
+    color: red;
+    font-weight: bold;
+}
+
+.content-controlo-acesso {
+    padding: 25px 85px;
+    background: white;
+    border: 2px solid red;
+    border-radius: 5px;
+    margin: 40px 20%;
+    background: #f8f6f6;
+}
+
+.title-controlo {
+    color: red;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.link-controlo {
+    width: 100%;
+    text-align: center;
+    display: inline-block;
 }

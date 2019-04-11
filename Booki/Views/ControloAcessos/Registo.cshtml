@@ -1,4 +1,4 @@
-﻿@model Booki.Models.ControloAcessosModel
+﻿@model Booki.Models.RegistoModel
 
 @{
     ViewBag.Title = "Registo";
@@ -7,56 +7,77 @@
 
 @using (Html.BeginForm())
 {
-    <h2>Formulário de Registo</h2>
+    <style>
+        .content-controlo-acesso {
+            padding: 25px 37px;
+            margin: 40px 8%;
+        }
+    </style>
 
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.Username, new { @class="control-label"})
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            @Html.TextBoxFor(o => o.Username, new { @class = "form-control input-sm" })
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.Password, new { @class = "control-label" })
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            @Html.PasswordFor(o => o.Password, new { @class = "form-control input-sm" })
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.Nome, new { @class = "control-label" })
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            @Html.TextBoxFor(o => o.Nome, new { @class = "form-control input-sm" })
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.Morada, new { @class = "control-label" })
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            @Html.TextBoxFor(o => o.Morada, new { @class = "form-control input-sm" })
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.CodigoPostal, new { @class = "control-label" })
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            @Html.TextBoxFor(o => o.CodigoPostal, new { @class = "form-control input-sm" })
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3 col-sm-3 col-xs-3">
-            @Html.LabelFor(o => o.IdLocalizacao, new { @class = "control-label" })
-        </div>
-        <div class="col-md-8 col-sm-8 col-xs-8">
-            
-        </div>
-    </div>
+    <div class="content-controlo-acesso">
+        <h2 class="title-controlo">Booki - Criar nova conta</h2>
 
-    <button class="btn btn-primary" type="submit">Registar</button>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Nome de utilizador</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Username, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Palavra-passe</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.PasswordFor(o => o.Password, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Nome completo</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Nome, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Nome)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Morada</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Morada, new { @class = "form-control input-sm" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Código postal</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.CodigoPostal, new { @class = "form-control input-sm" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Localização</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @{
+                    var listaLocal = Model.ListaLocalizacoes.Select(x => new SelectListItem
+                    {
+                        Text = x.Localizacao,
+                        Value = x.IdLocalizacao.ToString()
+                    }).ToList();
+                }
+
+                @Html.DropDownListFor(model => model.IdLocalizacao, listaLocal, "-- Selecionar Localizacao --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Registar</button>
+    </div>
 }

@@ -1,4 +1,4 @@
-﻿@model Booki.Models.ControloAcessosModel
+﻿@model Booki.Models.LoginModel
 
 @{
     ViewBag.Title = "Login";
@@ -7,16 +7,25 @@
 
 @using (Html.BeginForm())
 {
-    <h2>Formulário de Login</h2>
+    <div class="content-controlo-acesso">
+        <h2 class="title-controlo">Booki - Login</h2>
 
-    <div class="row">
-        <div class="col-md-12">
-            @Html.TextBoxFor(o => o.Username)
+        <div class="form-group">
+            <label>Nome de utilizador</label>
+            @Html.TextBoxFor(o => o.Username, new { @class = "form-control input-sm", @placeholder = "Nome de utilizador" })
+
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            @Html.PasswordFor(o => o.Username)
+        <div class="form-group">
+            <label>Palavra-passe</label>
+            @Html.PasswordFor(o => o.Password, new { @class = "form-control input-sm", @placeholder = "Palavra-passe" })
+            @Html.ValidationMessageFor(o => o.Password)
         </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Entrar</button>
+        </div>
+
+        <a href="@Url.Action("Registo", "ControloAcessos")" class="link-controlo">Criar nova conta</a>
+
     </div>
 }
