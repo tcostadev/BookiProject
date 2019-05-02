@@ -1,0 +1,103 @@
+﻿@model Booki.Models.RegistoModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Ajax.BeginForm("EditarPerfil", "ControloAcessos", new AjaxOptions
+{
+    OnSuccess = "OnSucessForm"
+}))
+{
+    @Html.HiddenFor(x => x.IdUser)
+
+    <style>
+        .content-controlo-acesso {
+            padding: 25px 37px;
+            margin: 40px 0%;
+        }
+        .breadcrumb{
+            background: red;
+        }
+            .breadcrumb .breadcrumb-item {
+                color: white;
+            }
+    </style>
+
+    <div class="content-controlo-acesso">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Perfil do utilizador @Model.Nome</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Nome de utilizador</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Username, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Palavra-passe</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.PasswordFor(o => o.Password, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Nome completo</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Nome, new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(o => o.Nome)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Morada</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Morada, new { @class = "form-control input-sm" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Código postal</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.CodigoPostal, new { @class = "form-control input-sm" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Localização</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @{
+                    var listaLocal = Model.ListaLocalizacoes.Select(x => new SelectListItem
+                    {
+                        Text = x.Localizacao,
+                        Value = x.IdLocalizacao.ToString()
+                    }).ToList();
+                }
+
+                @Html.DropDownListFor(model => model.IdLocalizacao, listaLocal, "-- Selecionar Localizacao --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(o => o.Username)
+            </div>
+        </div>
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                <button class="btn btn-primary float-right" type="submit">Guardar alterações</button>
+            </div>
+        </div>
+    </div>
+}

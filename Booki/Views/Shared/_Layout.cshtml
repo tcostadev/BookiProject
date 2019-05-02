@@ -37,14 +37,14 @@
                 @if (ViewBag.LoggedIn == true)
                 {
                     var userLogin = (LoginModel)HttpContext.Current.Session["SessionUtilizador"];
-                    
+
                     <li class="nav-item dropdown li-user">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             @userLogin.Nome
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="#">Ver Reservas</a>
-                            <a class="dropdown-item" href="#">Editar perfil</a>
+                            <a class="dropdown-item" href="@Url.Action("EditarPerfil", "ControloAcessos")">Editar perfil</a>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -71,7 +71,13 @@
             <p>&copy; @DateTime.Now.Year - Booki Reservas online</p>
         </footer>
     </div>
-     
+
+    <div class="alert" id="notif_content">
+        <div class="content">
+
+        </div>
+    </div>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

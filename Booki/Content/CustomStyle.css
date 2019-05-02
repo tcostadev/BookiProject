@@ -43,3 +43,31 @@ span.field-validation-error {
 .dropdown-menu {
     right: 0;
 }
+
+#notif_content {
+    display: none;
+    z-index: 1000000;
+    position: fixed;
+    width: 25%;
+    right: 20px;
+    top: 20px;
+    box-shadow: 0 0 17px 5px #919191;
+}
+    #notif_content.active {
+        display: block;
+        animation: fadein 1s;
+    }
+    #notif_content.deactive {
+        display: none;
+        animation: fadeout 1s;
+    }
+
+@keyframes fadein {
+    from {
+        top: 0px;
+    }
+
+    to {
+        top: 20px;
+    }
+}

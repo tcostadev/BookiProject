@@ -8,6 +8,7 @@ namespace Booki.Models
 {
     public class RegistoModel
     {
+        public int IdUser { get; set; }
         [Required(ErrorMessage ="Campo obrigatório")]
         public string Username { get; set; }
         [Required(ErrorMessage = "Campo obrigatório")]
@@ -23,6 +24,7 @@ namespace Booki.Models
     }
     public class LoginModel
     {
+        public int IdUser { get; set; }
         [Required(ErrorMessage = "Campo obrigatório")]
         public string Username { get; set; }
         [Required(ErrorMessage = "Campo obrigatório")]

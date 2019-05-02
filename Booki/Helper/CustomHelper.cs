@@ -9,6 +9,17 @@ namespace Booki.Helper
 {
     public class CustomHelper
     {
+        public static class Constantes
+        {
+            public static class TiposNotificacao
+            {
+                public static string Info = "alert-primary";
+                public static string Success = "alert-success";
+                public static string Erro = "alert-danger";
+                public static string Aviso = "alert-warning";
+            }
+        }
+
         public static List<LocalizacaoModel> GetListaLocalizacoes(string connectionString)
         {
             var listaFinal = new List<LocalizacaoModel>();
