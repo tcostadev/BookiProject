@@ -43,20 +43,20 @@
         </div>
         <div class="row">
             <div class="col-md-3 col-sm-3 col-xs-3">
-                <label class="control-label">Palavra-passe</label>
-            </div>
-            <div class="col-md-8 col-sm-8 col-xs-8">
-                @Html.PasswordFor(o => o.Password, new { @class = "form-control input-sm" })
-                @Html.ValidationMessageFor(o => o.Username)
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 col-sm-3 col-xs-3">
                 <label class="control-label">Nome completo</label>
             </div>
             <div class="col-md-8 col-sm-8 col-xs-8">
                 @Html.TextBoxFor(o => o.Nome, new { @class = "form-control input-sm" })
                 @Html.ValidationMessageFor(o => o.Nome)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3">
+                <label class="control-label">Email</label>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                @Html.TextBoxFor(o => o.Email, new { @class = "form-control input-sm", @type = "email" })
+                @Html.ValidationMessageFor(o => o.Email)
             </div>
         </div>
         <div class="row">

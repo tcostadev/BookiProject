@@ -95,6 +95,7 @@ namespace Booki.Controllers
                                     [username],
                                     [password],
                                     [nome_completo],
+                                    [email],
                                     [morada],
                                     [codigo_postal],
                                     [id_localizacao]
@@ -102,6 +103,7 @@ namespace Booki.Controllers
                                     @username,
                                     @password,
                                     @nome_completo,
+                                    @email,
                                     @morada,
                                     @codigo_postal,
                                     @id_localizacao)";
@@ -114,6 +116,7 @@ namespace Booki.Controllers
                 command.Parameters.AddWithValue("@username", model.Username);
                 command.Parameters.AddWithValue("@password", model.Password);
                 command.Parameters.AddWithValue("@nome_completo", model.Nome);
+                command.Parameters.AddWithValue("@email", model.Email);
                 command.Parameters.AddWithValue("@morada", model.Morada);
                 command.Parameters.AddWithValue("@codigo_postal", model.CodigoPostal);
                 command.Parameters.AddWithValue("@id_localizacao", model.IdLocalizacao);
@@ -160,6 +163,7 @@ namespace Booki.Controllers
                         model.Username = reader["UserName"].ToString();
                         model.Password = reader["password"].ToString();
                         model.Nome = reader["nome_completo"].ToString();
+                        model.Email = reader["Email"].ToString();
                         model.Morada = reader["morada"].ToString();
                         model.CodigoPostal = reader["codigo_postal"].ToString();
                         model.IdLocalizacao = Convert.ToInt16(reader["id_localizacao"]);
@@ -174,6 +178,8 @@ namespace Booki.Controllers
         [HttpPost]
         public ActionResult EditarPerfil(RegistoModel model)
         {
+            ModelState.Remove("Password");
+
             if (!ModelState.IsValid)
             {
                 model.ListaLocalizacoes = CustomHelper.GetListaLocalizacoes(ConnectionString);
@@ -182,8 +188,8 @@ namespace Booki.Controllers
 
             var sql = $@"update utilizador set 
                                     [username] = @userName,
-                                    [password] = @password,
                                     [nome_completo] = @nome_completo,
+                                    [email] = @email,
                                     [morada] = @morada,
                                     [codigo_postal] = @codigo_postal,
                                     [id_localizacao] = @id_localizacao
@@ -197,8 +203,8 @@ namespace Booki.Controllers
 
                 command.Parameters.AddWithValue("@id_user", model.IdUser);
                 command.Parameters.AddWithValue("@username", model.Username);
-                command.Parameters.AddWithValue("@password", model.Password);
                 command.Parameters.AddWithValue("@nome_completo", model.Nome);
+                command.Parameters.AddWithValue("@email", model.Email);
                 command.Parameters.AddWithValue("@morada", model.Morada);
                 command.Parameters.AddWithValue("@codigo_postal", model.CodigoPostal);
                 command.Parameters.AddWithValue("@id_localizacao", model.IdLocalizacao);

@@ -17,6 +17,7 @@ namespace Booki.Models
         public string Nome { get; set; }
         public string Morada { get; set; }
         public string CodigoPostal { get; set; }
+        public string Email { get; set; }
         [Required(ErrorMessage = "Campo obrigatório")]
         public int IdLocalizacao { get; set; }
 
