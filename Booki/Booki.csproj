@@ -131,12 +131,14 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\ControloAcessosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ReservasController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helper\CustomHelper.cs" />
     <Compile Include="Models\ControloAcessosModel.cs" />
     <Compile Include="Models\LocalizacaoModel.cs" />
+    <Compile Include="Models\TarifasModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +225,7 @@
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\ControloAcessos\EditarPerfil.cshtml" />
+    <Content Include="Views\Reservas\SearchDestinos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

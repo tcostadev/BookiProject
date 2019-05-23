@@ -16,6 +16,16 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 </head>
 <body>
+    <style>
+        .navbar-brand {
+            color: red !important;
+        }
+        .jumbotron{
+            border: 2px solid red;
+            margin-top: 2rem;
+        }
+    </style>
+
     <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="@Url.Action("Index", "Home")">Booki - Reservas Online</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +53,7 @@
                             @userLogin.Nome
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Ver Reservas</a>
+                            <a class="dropdown-item" href="@Url.Action("VerReservasUtilizador", "Reservas")">Ver Reservas</a>
                             <a class="dropdown-item" href="@Url.Action("EditarPerfil", "ControloAcessos")">Editar perfil</a>
                         </div>
                     </li>
