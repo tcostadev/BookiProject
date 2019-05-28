@@ -8,7 +8,7 @@
         <input id="localizacao" type="text" placeholder="Para onde vai?" class="form-control" />
         <input id="data_inicio" type="date" class="form-control mb-0" />
         <input id="data_fim" type="date" class="form-control" />
-        <a class="btn btn-primary btn-md float-right" onclick="OnClickPesquisar()">Pesquisar</a>
+        <a class="btn btn-danger btn-md float-right" onclick="OnClickPesquisar('@Url.Action("SearchDestinos", "Reservas")')">Pesquisar</a>
     </div>
 </div>
 
@@ -20,26 +20,16 @@
             enables a clean separation of concerns and gives you full control over markup
             for enjoyable, agile development.
         </p>
-        <a class="btn btn-primary btn-md">Ver quartos</a>
+        <a class="btn btn-danger btn-md">Ver quartos</a>
     </div>
     <div class="col-md-4">
         <h2>Lisboa</h2>
         <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-primary btn-md">Ver quartos</a></p>
+        <p><a class="btn btn-danger btn-md">Ver quartos</a></p>
     </div>
     <div class="col-md-4">
         <h2>Faro</h2>
         <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-primary btn-md">Ver quartos</a></p>
+        <p><a class="btn btn-danger btn-md">Ver quartos</a></p>
     </div>
 </div>
-
-<script>
-    function OnClickPesquisar() {
-        var localizacao = $("#localizacao").val();
-        var dataInicio = $("#data_inicio").val();
-        var dataFim = $("#data_fim").val();
-
-        location.href = '@Url.Action("SearchDestinos", "Reservas")?dataInicio=' + dataInicio + '&dataFim=' + dataFim + '&localizacao=' + localizacao;
-    }
-</script>

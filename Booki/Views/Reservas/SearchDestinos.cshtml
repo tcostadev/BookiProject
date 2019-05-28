@@ -1,8 +1,145 @@
-﻿
+﻿@model Booki.Models.SearchDestinosModel
+
 @{
-    ViewBag.Title = "SearchDestinos";
+    ViewBag.Title = "Resultado da Pesquisa";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>SearchDestinos</h2>
+<style>
+    #menu_pesquisa {
+        background: #e5e5e5;
+        padding: 15px;
+        min-height: 370px;
+        position:relative;
+    }
+    #btn-pesquisa {
+        position: absolute;
+        bottom: 14px;
+        right: 15px;
+    }
+    .classificacao-ico {
+        position: relative;
+        top: -3px;
+        left: 25px;
+        font-size: 18px;
+        color: #ffdb0f;
+    }
+    article.tarifas-hotel {
+        background: #fdfdfd;
+        padding: 10px;
+        border: 1px solid #c6c6c6;
+        margin: 15px 0px;
+    }
+    .show-rooms {
+        width: 40%;
+        padding: 3px 12px;
+        margin-bottom: 15px;
+    }
+    .info-preco {
+        font-size: 12px;
+        font-style: italic;
+    }
+    .reserve-ico {
+        position: relative;
+        right: -5px;
+    }
+</style>
 
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <section id="menu_pesquisa">
+                <h4>Pesquisar!</h4>
+                <label class="no-margin">Destino / Nome alojamento</label>
+                <p>
+                    <input id="localizacao" type="text" placeholder="Para onde vai?" class="form-control" />
+                </p>
+                <p>
+                    <label class="no-margin">Data para check-in</label>
+                    <input id="data_inicio" type="date" class="form-control mb-0" />
+                    <label class="no-margin">Data para check-out</label>
+                    <input id="data_fim" type="date" class="form-control" />
+                </p>
+                <a id="btn-pesquisa" class="btn btn-danger btn-md float-right" onclick="OnClickPesquisar('@Url.Action("SearchDestinos", "Reservas")')">Pesquisar</a>
+            </section>
+        </div>
+        <div class="col-md-9">
+            @foreach (var tarifaGroup in Model.ListaTarifas.GroupBy(x => x.IdHotel))
+            {
+                var infoHotel = Model.ListaTarifas.First(x => x.IdHotel == tarifaGroup.Key);
+                <article class="tarifas-hotel">
+                    <h3>
+                        @infoHotel.NomeHotel
+                        <span class="classificacao-ico">
+                            @for (int i = 0; i < Convert.ToInt16(infoHotel.Classificacao); i++)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+
+                        </span>
+                    </h3>
+                    <label>@infoHotel.LocalizacaoHotel @infoHotel.MoradaHotel</label>
+
+                    <p>
+                        Preços desde @Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key).Min(f => f.PrecoUnidade)€
+                    </p>
+                    <div style="text-align: center">
+                        <a class="btn btn-danger show-rooms" data-toggle="collapse" href="#tarifa_collapse_@tarifaGroup.Key" role="button" aria-expanded="false" aria-controls="tarifa_collapse_@tarifaGroup.Key">
+                            Ver quartos disponiveis
+                        </a>
+                    </div>
+                    
+                    <div class="collapse multi-collapse" id="tarifa_collapse_@tarifaGroup.Key">
+                        <div class="card card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Tipo de quarto</th>
+                                        <th scope="col">Capacidade</th>
+                                        <th scope="col">Preço de hoje (por noite)</th>
+                                        <th scope="col">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tarifa in Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key))
+                                    {
+                                        <tr>
+                                            <th scope="row">@tarifa.DesignacaoTipoQuarto</th>
+                                            <td>
+                                                <span class="capacidade-ico">
+                                                    @for (int i = 0; i < Convert.ToInt16(tarifa.Capacidade); i++)
+                                                    {
+                                                        <i class="fas fa-user-circle"></i>
+                                                    }
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @tarifa.PrecoUnidade€
+                                                <br />
+                                                <span class="info-preco">Inclui impostos e taxas!</span>
+                                            </td>
+                                            <td>
+                                                @if (ViewBag.LoggedIn == true)
+                                                {
+                                                    <a class="btn btn-danger no-width">
+                                                        Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-danger no-width disabled">
+                                                        Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</div>

@@ -1,7 +1,7 @@
-﻿footer{
+﻿/*footer{
     position: absolute;
     bottom: 0;
-}
+}*/
 
 input{
     max-width: initial;
@@ -70,4 +70,26 @@ span.field-validation-error {
     to {
         top: 20px;
     }
+}
+
+.no-margin{
+    margin: 0 !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+
+a.btn-danger {
+    color: white !important;
+    min-width: 125px;
+}
+
+    a.btn-danger.no-width {
+        min-width: unset !important;
+    }
+
+.card-body {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 0.25rem;
 }
