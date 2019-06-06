@@ -1,4 +1,5 @@
-﻿@model Booki.Models.SearchDestinosModel
+﻿@using Booki.Helper;
+@model Booki.Models.SearchDestinosModel
 
 @{
     ViewBag.Title = "Resultado da Pesquisa";
@@ -43,6 +44,12 @@
         position: relative;
         right: -5px;
     }
+    .info-quartos-disp {
+        font-size: 12px;
+        font-style: italic;
+        display: block;
+        font-weight: normal;
+    }
 </style>
 
 <div class="container-fluid">
@@ -52,94 +59,149 @@
                 <h4>Pesquisar!</h4>
                 <label class="no-margin">Destino / Nome alojamento</label>
                 <p>
-                    <input id="localizacao" type="text" placeholder="Para onde vai?" class="form-control" />
+                    <input id="localizacao" type="text" placeholder="Para onde vai?" class="form-control" value="@Model.Localizacao" />
                 </p>
                 <p>
                     <label class="no-margin">Data para check-in</label>
-                    <input id="data_inicio" type="date" class="form-control mb-0" />
+                    <input id="data_inicio" type="date" class="form-control mb-0" value="@Model.DataInicio.ToString("yyyy-MM-dd")" />
                     <label class="no-margin">Data para check-out</label>
-                    <input id="data_fim" type="date" class="form-control" />
+                    <input id="data_fim" type="date" class="form-control" value="@Model.DataFim.ToString("yyyy-MM-dd")" />
                 </p>
                 <a id="btn-pesquisa" class="btn btn-danger btn-md float-right" onclick="OnClickPesquisar('@Url.Action("SearchDestinos", "Reservas")')">Pesquisar</a>
             </section>
         </div>
         <div class="col-md-9">
-            @foreach (var tarifaGroup in Model.ListaTarifas.GroupBy(x => x.IdHotel))
+            @if (!Model.ListaTarifas.Any())
             {
-                var infoHotel = Model.ListaTarifas.First(x => x.IdHotel == tarifaGroup.Key);
-                <article class="tarifas-hotel">
-                    <h3>
-                        @infoHotel.NomeHotel
-                        <span class="classificacao-ico">
-                            @for (int i = 0; i < Convert.ToInt16(infoHotel.Classificacao); i++)
-                            {
-                                <i class="fas fa-star"></i>
-                            }
+                <p class="no-results">Nao existem resultados para a sua pesquisa!</p>
+            }
+            else
+            {
+                foreach (var tarifaGroup in Model.ListaTarifas.GroupBy(x => x.IdHotel))
+                {
+                    var infoHotel = Model.ListaTarifas.First(x => x.IdHotel == tarifaGroup.Key);
+                    <article class="tarifas-hotel">
+                        <h3>
+                            @infoHotel.NomeHotel
+                            <span class="classificacao-ico">
+                                @for (int i = 0; i < Convert.ToInt16(infoHotel.Classificacao); i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                            </span>
+                        </h3>
+                        <label>@infoHotel.LocalizacaoHotel @infoHotel.MoradaHotel</label>
 
-                        </span>
-                    </h3>
-                    <label>@infoHotel.LocalizacaoHotel @infoHotel.MoradaHotel</label>
+                        <p>
+                            Preços desde @Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key).Min(f => f.PrecoUnidade)€
+                        </p>
+                        <div style="text-align: center">
+                            <a class="btn btn-danger show-rooms" data-toggle="collapse" href="#tarifa_collapse_@tarifaGroup.Key" role="button" aria-expanded="false" aria-controls="tarifa_collapse_@tarifaGroup.Key">
+                                Ver quartos
+                            </a>
+                        </div>
 
-                    <p>
-                        Preços desde @Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key).Min(f => f.PrecoUnidade)€
-                    </p>
-                    <div style="text-align: center">
-                        <a class="btn btn-danger show-rooms" data-toggle="collapse" href="#tarifa_collapse_@tarifaGroup.Key" role="button" aria-expanded="false" aria-controls="tarifa_collapse_@tarifaGroup.Key">
-                            Ver quartos disponiveis
-                        </a>
-                    </div>
-                    
-                    <div class="collapse multi-collapse" id="tarifa_collapse_@tarifaGroup.Key">
-                        <div class="card card-body">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Tipo de quarto</th>
-                                        <th scope="col">Capacidade</th>
-                                        <th scope="col">Preço de hoje (por noite)</th>
-                                        <th scope="col">#</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var tarifa in Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key))
-                                    {
+                        <div class="collapse multi-collapse" id="tarifa_collapse_@tarifaGroup.Key">
+                            <div class="card card-body">
+                                <table class="table table-bordered">
+                                    <thead>
                                         <tr>
-                                            <th scope="row">@tarifa.DesignacaoTipoQuarto</th>
-                                            <td>
-                                                <span class="capacidade-ico">
-                                                    @for (int i = 0; i < Convert.ToInt16(tarifa.Capacidade); i++)
-                                                    {
-                                                        <i class="fas fa-user-circle"></i>
-                                                    }
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @tarifa.PrecoUnidade€
-                                                <br />
-                                                <span class="info-preco">Inclui impostos e taxas!</span>
-                                            </td>
-                                            <td>
-                                                @if (ViewBag.LoggedIn == true)
-                                                {
-                                                    <a class="btn btn-danger no-width">
-                                                        Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a class="btn btn-danger no-width disabled">
-                                                        Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
-                                                    </a>
-                                                }
-                                            </td>
+                                            <th scope="col">Tipo de quarto</th>
+                                            <th scope="col">Capacidade</th>
+                                            <th scope="col">Preço de hoje (por noite)</th>
+                                            <th scope="col">#</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var tarifa in Model.ListaTarifas.Where(x => x.IdHotel == tarifaGroup.Key))
+                                        {
+                                            <tr id="@tarifa.IdTarifa" data-object="@tarifa.Serialize2Json()">
+                                                <th scope="row">
+                                                    @tarifa.DesignacaoTipoQuarto
+                                                    <span class="info-quartos-disp">Quartos disponiveis: @tarifa.NumeroQuartosDisponiveis</span>
+                                                </th>
+                                                <td>
+                                                    <span class="capacidade-ico">
+                                                        @for (int i = 0; i < Convert.ToInt16(tarifa.Capacidade); i++)
+                                                        {
+                                                            <i class="fas fa-user-circle"></i>
+                                                        }
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @tarifa.PrecoUnidade€
+                                                    <br />
+                                                    <span class="info-preco">Inclui impostos e taxas!</span>
+                                                    @if (!tarifa.NumeroQuartosDisponiveis.HasValue || tarifa.NumeroQuartosDisponiveis == 0)
+                                                    {
+                                                        <span class="info-preco" style="color: red; float: right;">Quarto indisponivel</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (ViewBag.LoggedIn == true && tarifa.NumeroQuartosDisponiveis > 0)
+                                                    {
+                                                        <a class="btn btn-danger no-width" onclick="OnClickReservarDestino(@tarifa.IdTarifa)">
+                                                            Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="btn btn-danger no-width disabled">
+                                                            Go <i class="fas fa-arrow-alt-circle-right reserve-ico"></i>
+                                                        </a>
+                                                    }
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- MODAL PARA RESERVAR O DESTINO -->
+    <div class="modal fade" id="reserva_destino" tabindex="-1" role="dialog" aria-labelledby="modal_lbl" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal_lbl">Confirmação da reserva de Alojamento</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="TarifaJson" type="hidden"/>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Data Check-in</label>
+                            <input class="form-control" type="text" disabled id="C_data_inicio" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Data Check-Out</label>
+                            <input class="form-control" type="text" disabled id="C_data_fim" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Número de noites</label>
+                            <input class="form-control" type="text" disabled id="C_n_noites" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Preço total</label>
+                            <input class="form-control" type="text" disabled id="C_total" />
                         </div>
                     </div>
-                </article>
-            }
+                    <hr />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="OnClickConfirmarReserva('@Url.Action("ReservarDestino", "Reservas")')">Confirmar reserva</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

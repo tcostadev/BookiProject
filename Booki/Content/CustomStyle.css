@@ -93,3 +93,11 @@ a.btn-danger {
     flex: 1 1 auto;
     padding: 0.25rem;
 }
+
+.no-results {
+    text-align: center;
+    font-size: 24px;
+    font-style: italic;
+    text-decoration: underline;
+    margin-top: 20px;
+}

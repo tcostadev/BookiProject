@@ -1,13 +1,14 @@
 ﻿using Booki.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
+using System.Collections;
 
 namespace Booki.Helper
 {
-    public class CustomHelper
+    public static class CustomHelper
     {
         public static class Constantes
         {

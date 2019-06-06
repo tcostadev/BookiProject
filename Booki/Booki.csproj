@@ -137,6 +137,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helper\CustomHelper.cs" />
+    <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Models\ControloAcessosModel.cs" />
     <Compile Include="Models\LocalizacaoModel.cs" />
     <Compile Include="Models\TarifasModel.cs" />

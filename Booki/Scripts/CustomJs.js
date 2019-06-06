@@ -56,3 +56,33 @@ function OnClickPesquisar(urlAction) {
 
     location.href = urlAction + '?dataInicio=' + dataInicio + '&dataFim=' + dataFim + '&localizacao=' + localizacao;
 }
+
+function OnClickReservarDestino(idTarifa) {
+    var objTarifa = JSON.parse($("tr#" + idTarifa).attr("data-object"));
+
+    var nNoites = new Date(new Date($('#data_fim').val()) - new Date($('#data_inicio').val())) / 1000 / 60 / 60 / 24;
+    var precoUni = objTarifa.PrecoUnidade;
+
+    $("#TarifaJson").val(JSON.stringify(objTarifa));
+
+    $("#C_data_inicio").val($("#data_inicio").val());
+    $("#C_data_fim").val($("#data_fim").val());
+    $("#C_n_noites").val(nNoites);
+    $("#C_tipo_quarto").text(objTarifa.DesignacaoTipoQuarto);
+    $("#C_total").val(precoUni * nNoites + "€");
+
+    $('#reserva_destino').modal('show');
+}
+
+function OnClickConfirmarReserva(url) {
+    $.ajax({
+        url: url,
+        data: {
+            jsonTarifa: $("#TarifaJson").val(),
+        },
+        success: function (result) {
+            ShowNotification("A reserva foi efetuada com sucesso", "alert-success", 7500);
+            $('#reserva_destino').modal('hide');
+        }
+    });
+}

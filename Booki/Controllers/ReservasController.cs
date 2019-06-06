@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Booki.Helper;
 
 namespace Booki.Controllers
 {
@@ -35,7 +36,12 @@ namespace Booki.Controllers
         {
             ViewBag.LoggedIn = IsLoggedIn();
 
-            var model = new SearchDestinosModel();
+            var model = new SearchDestinosModel
+            {
+                DataInicio = Convert.ToDateTime(dataInicio),
+                DataFim = Convert.ToDateTime(dataFim),
+                Localizacao = localizacao.ToUpper()
+            };
 
             var dataInicioDt = Convert.ToDateTime(dataInicio);
             var dataFimDt = Convert.ToDateTime(dataInicio);
@@ -50,13 +56,28 @@ namespace Booki.Controllers
                                             l.localizacao,
                                             h.codigo_postal + ' - '+ h.morada as morada,
                                             h.id_hotel,
-                                            h.classificacao
+                                            h.classificacao,
+
+                                            -- numero quartos disponiveis em cada hotel
+	                                        (cpt.n_quartos_disponiveis -
+	
+	                                        -- numero quartos disponiveis na data especifica
+	                                        (select COUNT(rh.id_reserva_hotel) 
+		                                        from reserva_hotel rh
+				                                        where 1=1 
+					                                        and rh.id_tarifa_hotel = th.id_tarifa
+					                                        and rh.data_inicio <= '2019-05-01' 
+					                                        and rh.data_fim  >= '2019-05-01' )
+					
+	                                        ) as NumeroQuartosDisponiveis
+
                                         from tarifas_hotel th
 	
 	                                    left join hotel h on h.id_hotel = th.id_hotel
 	                                    left join localizacao l on l.id_localizacao = h.id_localizacao
 	                                    left join tipo_quarto tp on tp.id_tipo_quarto = th.id_tipo_quarto
-	
+	                                    left join capacidade_tipo_quarto cpt on tp.id_tipo_quarto = cpt.id_tipo_quarto  and h.id_hotel = cpt.id_hotel
+
 	                                    where 1=1
 		                                    and th.data_inicio <= '{dataInicio}' 
 		                                    and th.data_fim  >= '{dataFim}' 
@@ -71,7 +92,7 @@ namespace Booki.Controllers
                 {
                     while (reader.Read())
                     {
-                        listaTarifas.Add(new TarifasModel
+                        var newTarifa = new TarifasModel
                         {
                             IdTarifa = Convert.ToInt32(reader["id_tarifa"]),
                             IdHotel = Convert.ToInt32(reader["id_hotel"]),
@@ -80,20 +101,66 @@ namespace Booki.Controllers
                             LocalizacaoHotel = reader["localizacao"].ToString(),
                             MoradaHotel = reader["morada"].ToString(),
                             Classificacao = reader["classificacao"].ToString(),
-
+                            
                             Capacidade = reader["capacidade"].ToString(),
                             DesignacaoTipoQuarto = reader["designacao"].ToString(),
                             PrecoUnidade = Convert.ToDecimal(reader["preco_unidade"]),
-                        });
+                        };
+
+                        if (!Convert.IsDBNull(reader["NumeroQuartosDisponiveis"]))
+                            newTarifa.NumeroQuartosDisponiveis = Convert.ToInt32(reader["NumeroQuartosDisponiveis"]);
+
+                        listaTarifas.Add(newTarifa);
                     }
                 }
 
                 connection.Close();
             }
-
+            
             model.ListaTarifas = listaTarifas;
 
             return View(model);
+        }
+        public ActionResult ReservarDestino(string jsonTarifa)
+        {
+            var tarifaModel = jsonTarifa.DeserializeFromJson<TarifasModel>();
+
+            string sql = $@"INSERT INTO utilizador (
+                                    [username],
+                                    [password],
+                                    [nome_completo],
+                                    [email],
+                                    [morada],
+                                    [codigo_postal],
+                                    [id_localizacao]
+                                   ) VALUES (
+                                    @username,
+                                    @password,
+                                    @nome_completo,
+                                    @email,
+                                    @morada,
+                                    @codigo_postal,
+                                    @id_localizacao)";
+
+            //using (var connection = new SqlConnection(ConnectionString))
+            //using (var command = new SqlCommand(sql, connection))
+            //{
+            //    connection.Open();
+
+            //    command.Parameters.AddWithValue("@username", model.Username);
+            //    command.Parameters.AddWithValue("@password", model.Password);
+            //    command.Parameters.AddWithValue("@nome_completo", model.Nome);
+            //    command.Parameters.AddWithValue("@email", model.Email);
+            //    command.Parameters.AddWithValue("@morada", model.Morada);
+            //    command.Parameters.AddWithValue("@codigo_postal", model.CodigoPostal);
+            //    command.Parameters.AddWithValue("@id_localizacao", model.IdLocalizacao);
+
+            //    command.ExecuteNonQuery();
+
+            //    connection.Close();
+            //}
+
+            return PartialView();
         }
     }
 }
