@@ -36,6 +36,12 @@ namespace Booki.Controllers
                                         
 	                                    CONCAT(h.morada, ', ', h.codigo_postal, ' - ', l.localizacao) as morada,
 	
+                                        (STUFF((SELECT a.designacao
+                                             FROM reserva_servicos rs
+		                                     left join artigos a on a.id_artigo = rs.id_artigo 
+                                             WHERE rs.id_reserva_hotel = rh.id_reserva_hotel
+                                             FOR XML PATH ('')), 1, 2, '')) AS artigos,
+
 	                                    rh.id_reserva_hotel,
                                         rh.apagado
 
@@ -72,9 +78,16 @@ namespace Booki.Controllers
                             TipoQuarto = reader["designacao"].ToString(),
                             Preco = reader["preco_total"].ToString(),
                             PrecoUnidade = reader["preco_unidade"].ToString(),
-                            Apagado = Convert.ToBoolean(reader["apagado"])
+                            Apagado = Convert.ToBoolean(reader["apagado"]),
+                            Artigos = reader["artigos"].ToString(),
                         };
-                        
+
+                        if (!string.IsNullOrEmpty(newTarifa.Artigos))
+                        {
+                            var art = newTarifa.Artigos.Replace("<designacao>", ", ").Replace("</designacao>", ", ");
+                            newTarifa.Artigos = art;
+                        }
+
                         listaReservas.Add(newTarifa);
                     }
                 }
@@ -93,7 +106,9 @@ namespace Booki.Controllers
             {
                 DataInicio = Convert.ToDateTime(dataInicio),
                 DataFim = Convert.ToDateTime(dataFim),
-                Localizacao = string.IsNullOrEmpty(localizacao) ? "": localizacao.ToUpper()
+                Localizacao = string.IsNullOrEmpty(localizacao) ? "": localizacao.ToUpper(),
+                ListaTarifas = new List<TarifasModel>(),
+                ListaArtigos = new List<ArtigosModel>()
             };
 
             var dataInicioDt = Convert.ToDateTime(dataInicio);
@@ -136,7 +151,7 @@ namespace Booki.Controllers
 	                            where 1=1
 		                            and th.data_inicio <= '{dataInicio.ToString("yyyy-MM-dd")}' 
 		                            and th.data_fim  >= '{dataFim.ToString("yyyy-MM-dd")}' 
-		                            {(string.IsNullOrEmpty(localizacao) ? "": $"and (l.localizacao like '%{localizacao}%' or h.nome like '%{localizacao}%')")}
+		                            {(string.IsNullOrEmpty(localizacao) ? "": $"and (l.localizacao like '%{localizacao}%' or h.nome like '%{localizacao}%' or h.morada like '%{localizacao}%')")}
                                     ;";
 
             using (var connection = new SqlConnection(ConnectionString))
@@ -174,9 +189,34 @@ namespace Booki.Controllers
             
             model.ListaTarifas = listaTarifas;
 
+            var sqlGetArtigos = "SELECT * FROM artigos;";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sqlGetArtigos, connection))
+            {
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var newArtigo = new ArtigosModel
+                        {
+                            IdArtigo = Convert.ToInt32(reader["id_artigo"]),
+                            Designacao = reader["designacao"].ToString(),
+                            PermitePreMarcacao = Convert.ToBoolean(reader["permite_pre_marcacao"]),
+                            Preco = Convert.ToDecimal(reader["preco"])
+                        };
+
+                        model.ListaArtigos.Add(newArtigo);
+                    }
+                }
+
+                connection.Close();
+            }
+
             return View(model);
         }
-        public ActionResult ReservarDestino(string jsonTarifa, string dataInicio, string dataFim, string nHospedes, string precoTotal)
+        public ActionResult ReservarDestino(string jsonTarifa, string dataInicio, string dataFim, string nHospedes, string precoTotal, string listServicos)
         {
             ViewBag.LoggedIn = IsLoggedIn();
 
@@ -198,7 +238,9 @@ namespace Booki.Controllers
                                     @id_tarifa_hotel,
                                     @id_utilizador,
                                     @preco,
-                                    @apagado)";
+                                    @apagado); SELECT SCOPE_IDENTITY()";
+
+            int idRservico;
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -209,13 +251,40 @@ namespace Booki.Controllers
                 command.Parameters.AddWithValue("@data_fim", Convert.ToDateTime(dataFim));
                 command.Parameters.AddWithValue("@nr_hospedes", Convert.ToInt16(nHospedes));
                 command.Parameters.AddWithValue("@id_tarifa_hotel", tarifaModel.IdTarifa);
-                command.Parameters.AddWithValue("@preco", Convert.ToDecimal(precoTotal));
+                command.Parameters.AddWithValue("@preco", Convert.ToDecimal(precoTotal.Replace("€", "")));
                 command.Parameters.AddWithValue("@id_utilizador", utilizador.IdUser);
                 command.Parameters.AddWithValue("@apagado", false);
-
-                command.ExecuteNonQuery();
-
+                
+                idRservico = Convert.ToInt16(command.ExecuteScalar());
+                
                 connection.Close();
+            }
+            
+            var listaServicos = new List<int>();
+            if (!string.IsNullOrEmpty(listServicos))
+            {
+                listaServicos = JsonHelper.DeserializeFromJson<List<int>>(listServicos);
+
+                foreach (var servico in listaServicos)
+                {
+                    var sqlInsertArtigos = $@"DECLARE @preco decimal(18, 0);
+                                            SELECT @preco = a.preco FROM artigos a where a.id_artigo = {servico} ;
+
+                                            INSERT INTO reserva_servicos
+	                                            (id_artigo, 
+	                                            id_reserva_hotel, 
+	                                            preco_total, 
+	                                            quantidade) 
+	                                            VALUES ({servico}, {idRservico}, @preco, 1)";
+
+                    using (var connection = new SqlConnection(ConnectionString))
+                    using (var command = new SqlCommand(sqlInsertArtigos, connection))
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        connection.Close();
+                    }
+                }                
             }
 
             return Json(new { });

@@ -31,6 +31,7 @@
                 <th scope="col">Hotel</th>
                 <th scope="col">Check-in / Check-Out</th>
                 <th scope="col">Tipo de Quarto</th>
+                <th scope="col">Pedidos / Serviços</th>
                 <th scope="col">Preço Total (€)</th>
                 <th scope="col">#</th>
             </tr>
@@ -55,6 +56,9 @@
                     </td>
                     <td>
                         @reserva.TipoQuarto (@reserva.PrecoUnidade p/noite)
+                    </td>
+                     <td>
+                        @reserva.Artigos
                     </td>
                     <td>
                         @reserva.Preco

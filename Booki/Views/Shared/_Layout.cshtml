@@ -35,9 +35,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("SearchDestinos", "Reservas", new { dataInicio = DateTime.Today, dataFim = DateTime.Today.AddDays(1), localizacao = ""})">Reservar Hoteis</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Contact", "Home")">Reservar Voos</a>
-                </li>
             </ul>
             <ul class="navbar-nav float-right ml-auto">
                 @if (ViewBag.LoggedIn == true)

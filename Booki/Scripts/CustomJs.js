@@ -75,6 +75,7 @@ function OnClickReservarDestino(idTarifa) {
     $("#C_n_noites").val(nNoites);
     $("#C_TipoQuarto").val(objTarifa.DesignacaoTipoQuarto);
     $("#C_total").val(precoUni * nNoites + "€");
+    $("#C_total_inicial").val(precoUni * nNoites);
 
     $('#reserva_destino').modal('show');
 }
@@ -83,12 +84,22 @@ function OnClickConfirmarReserva(url) {
     var objTarifa = JSON.parse($("#TarifaJson").val());
 
     if ($("#NHospedes").val() === "") {
+        ShowNotification("Número de hospedes obrigatório", "alert-warning", 7500);
         return;
     }
 
     if (objTarifa.Capacidade < parseInt($("#NHospedes").val())) {
         ShowNotification("A capacidade do quarto escolhido é de: " + objTarifa.Capacidade + " hóspede", "alert-warning", 7500);
         return;
+    }
+
+    var listaServicos = [];
+
+    var servicosSelected = $("#multi_pedidos").find("input[type=checkbox]:checked");
+    if (servicosSelected !== undefined && servicosSelected.length > 0) {
+        $.each(servicosSelected, function (index, value) {
+            listaServicos.push($(value).attr("id_artigo"));
+        });
     }
 
     $.post({
@@ -98,11 +109,13 @@ function OnClickConfirmarReserva(url) {
             nHospedes: $("#NHospedes").val(),
             dataInicio: $("#C_data_inicio").val(),
             dataFim: $("#C_data_fim").val(),
-            precoTotal: $("#C_total").val()
+            precoTotal: $("#C_total").val(),
+            listServicos: JSON.stringify(listaServicos)
         },
         success: function (result) {
             ShowNotification("A reserva foi efetuada com sucesso", "alert-success", 7500);
             $('#reserva_destino').modal('hide');
+            setTimeout(location.reload(), 300);
         }
     });
 }

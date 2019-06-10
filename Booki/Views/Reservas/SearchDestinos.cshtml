@@ -50,6 +50,19 @@
         display: block;
         font-weight: normal;
     }
+
+    #multi_pedidos{
+        max-width: 50%;
+        width: 100%;
+    }
+        #multi_pedidos span {
+            font-weight: bold;
+            float: right;
+        }
+            #multi_pedidos span.gratis {
+                color: #59bb11;
+            }
+    
 </style>
 
 <div class="container-fluid">
@@ -196,6 +209,7 @@
                         </div>
                         <div class="col-md-3">
                             <label>Preço total</label>
+                            <input type="hidden" disabled id="C_total_inicial" />
                             <input class="form-control" type="text" disabled id="C_total" />
                         </div>
                     </div>
@@ -216,6 +230,27 @@
                         </div>
                     </div>
                     <hr />
+                    <h6>Pedidos extra</h6>
+                    <div id="multi_pedidos">
+                        @foreach (var artigo in Model.ListaArtigos)
+                        {
+                            <div class="custom-control custom-checkbox mb-3">
+                                <input type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
+                                <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
+                                    @artigo.Designacao
+                                    
+                                    @if (artigo.Preco == 0)
+                                    {
+                                        <span class="gratis">Incluido</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@artigo.Preco €</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -225,3 +260,20 @@
         </div>
     </div>
 </div>
+<script>
+    $("#multi_pedidos").on("change", function () {
+
+        var checkedFiedls = $(this).find("input[type=checkbox]:checked");
+
+        var precoInicial = $("#C_total_inicial").val();
+        var preco = parseFloat(precoInicial);
+
+        $.each(checkedFiedls, function (index, value) {
+
+            preco = preco + parseFloat($(value).attr("preco"));
+
+        });
+        
+        $("#C_total").val(preco + "€");
+    });
+</script>
