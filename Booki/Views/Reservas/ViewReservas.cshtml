@@ -1,0 +1,79 @@
+﻿@model List<Booki.Models.ReservasModel>
+
+@{
+    ViewBag.Title = "Ver Reservas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .classificacao-ico {
+        position: relative;
+        top: -3px;
+        left: 10px;
+        font-size: 11px;
+        color: #ffdb0f;
+    }
+    .hotel-morada {
+        display: block;
+        font-size: 11px;
+        font-style: italic;
+    }
+    .reserva-cancel{
+        color: red;
+        font-size: 14px;
+    }
+</style>
+
+<div class="container-fluid">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Hotel</th>
+                <th scope="col">Check-in / Check-Out</th>
+                <th scope="col">Tipo de Quarto</th>
+                <th scope="col">Preço Total (€)</th>
+                <th scope="col">#</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reserva in Model)
+            {
+                <tr>
+                    <td>
+                        @reserva.NomeHotel
+                        <span class="classificacao-ico">
+                            @for (int i = 0; i < Convert.ToInt16(reserva.Classificacao); i++)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+                        </span>
+
+                        <span class="hotel-morada">@reserva.MoradaCompleta</span>
+                    </td>
+                    <td>
+                        @reserva.DataInicio.ToShortDateString() / @reserva.DataFim.ToShortDateString()
+                    </td>
+                    <td>
+                        @reserva.TipoQuarto (@reserva.PrecoUnidade p/noite)
+                    </td>
+                    <td>
+                        @reserva.Preco
+                    </td>
+                    <td>
+                        @if (reserva.Apagado)
+                        {
+                            <p class="reserva-cancel">Reserva cancelada</p>
+                        }
+                        else
+                        {
+                            <a class="btn btn-danger no-width" onclick="OnClickCancelarReserva(@reserva.IdReserva, '@Url.Action("CancelarReserva")')">
+                                Cancelar <i class="fas fa-times-circle"></i>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    
+</div>

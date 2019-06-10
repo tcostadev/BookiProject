@@ -22,17 +22,70 @@ namespace Booki.Controllers
 
             var utilizador = (LoginModel)Session[SessionUtilizador];
 
-            var sql = $@"SELECT * 
-                            FROM reserva_hotel rh
-                                WHERE 1=1
-                                    AND rh.id_utilizador = @user_id
-                                ORDER BY rh.data_inicio DESC";
+            var listaReservas = new List<ReservasModel>();
+
+            var getReservasUser = $@"SELECT 
+	                                    rh.data_inicio,
+	                                    rh.data_fim,
+	                                    rh.nr_hospedes,
+	                                    th.preco_unidade,
+	                                    tp.designacao,
+	                                    h.nome,
+	                                    h.classificacao,
+	                                    rh.preco_total,
+                                        
+	                                    CONCAT(h.morada, ', ', h.codigo_postal, ' - ', l.localizacao) as morada,
+	
+	                                    rh.id_reserva_hotel,
+                                        rh.apagado
+
+                                        FROM reserva_hotel rh
+
+		                                    left join tarifas_hotel th on th.id_tarifa = rh.id_tarifa_hotel
+		                                    left join hotel h on h.id_hotel = th.id_hotel
+		                                    left join localizacao l on l.id_localizacao = h.id_localizacao
+		                                    left join tipo_quarto tp on tp.id_tipo_quarto = th.id_tipo_quarto
+
+                                            WHERE 1=1
+                                                AND rh.id_utilizador = {utilizador.IdUser}
+                                            ORDER BY rh.data_inicio DESC";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(getReservasUser, connection))
+            {
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var newTarifa = new ReservasModel
+                        {
+                            IdReserva = Convert.ToInt32(reader["id_reserva_hotel"]),
+                            DataInicio = Convert.ToDateTime(reader["data_inicio"]),
+                            DataFim = Convert.ToDateTime(reader["data_fim"]),
+
+                            NomeHotel = reader["nome"].ToString(),
+                            MoradaCompleta = reader["morada"].ToString(),
+                            Classificacao = reader["classificacao"].ToString(),
+
+                            NrHospedes = reader["nr_hospedes"].ToString(),
+                            TipoQuarto = reader["designacao"].ToString(),
+                            Preco = reader["preco_total"].ToString(),
+                            PrecoUnidade = reader["preco_unidade"].ToString(),
+                            Apagado = Convert.ToBoolean(reader["apagado"])
+                        };
+                        
+                        listaReservas.Add(newTarifa);
+                    }
+                }
+
+                connection.Close();
+            }
 
 
-
-            return View();
+            return View("ViewReservas", listaReservas);
         }
-        public ActionResult SearchDestinos(string dataInicio, string dataFim, string localizacao)
+        public ActionResult SearchDestinos(DateTime dataInicio, DateTime dataFim, string localizacao)
         {
             ViewBag.LoggedIn = IsLoggedIn();
 
@@ -40,7 +93,7 @@ namespace Booki.Controllers
             {
                 DataInicio = Convert.ToDateTime(dataInicio),
                 DataFim = Convert.ToDateTime(dataFim),
-                Localizacao = localizacao.ToUpper()
+                Localizacao = string.IsNullOrEmpty(localizacao) ? "": localizacao.ToUpper()
             };
 
             var dataInicioDt = Convert.ToDateTime(dataInicio);
@@ -48,40 +101,42 @@ namespace Booki.Controllers
             var listaTarifas = new List<TarifasModel>();
 
             var getTarifasSql = $@"select 
-                                            th.id_tarifa,
-                                            th.preco_unidade, 
-                                            tp.designacao, 
-                                            tp.capacidade, 
-                                            h.nome, 
-                                            l.localizacao,
-                                            h.codigo_postal + ' - '+ h.morada as morada,
-                                            h.id_hotel,
-                                            h.classificacao,
+                                    th.id_tarifa,
+                                    th.preco_unidade, 
+                                    tp.designacao, 
+                                    tp.capacidade, 
+                                    h.nome, 
+                                    l.localizacao,
+                                    h.codigo_postal + ' - '+ h.morada as morada,
+                                    h.id_hotel,
+                                    h.classificacao,
 
-                                            -- numero quartos disponiveis em cada hotel
-	                                        (cpt.n_quartos_disponiveis -
+                                    -- numero quartos disponiveis em cada hotel
+	                                (cpt.n_quartos_disponiveis -
 	
-	                                        -- numero quartos disponiveis na data especifica
-	                                        (select COUNT(rh.id_reserva_hotel) 
-		                                        from reserva_hotel rh
-				                                        where 1=1 
-					                                        and rh.id_tarifa_hotel = th.id_tarifa
-					                                        and rh.data_inicio <= '2019-05-01' 
-					                                        and rh.data_fim  >= '2019-05-01' )
+	                                -- numero quartos disponiveis na data especifica
+	                                (select COUNT(rh.id_reserva_hotel) 
+		                                from reserva_hotel rh
+				                                where 1=1 
+                                                    and rh.apagado = 0 or rh.apagado is null
+					                                and rh.id_tarifa_hotel = th.id_tarifa
+                                                    and (rh.data_inicio <= '{dataInicio.ToString("yyyy-MM-dd")}' and rh.data_fim  >= '{dataFim.ToString("yyyy-MM-dd")}') 
+                                                    or (rh.data_inicio >= '{dataInicio.ToString("yyyy-MM-dd")}' and rh.data_fim <= '{dataFim.ToString("yyyy-MM-dd")}')
+                                    )
 					
-	                                        ) as NumeroQuartosDisponiveis
+	                                ) as NumeroQuartosDisponiveis
 
-                                        from tarifas_hotel th
+                                from tarifas_hotel th
 	
-	                                    left join hotel h on h.id_hotel = th.id_hotel
-	                                    left join localizacao l on l.id_localizacao = h.id_localizacao
-	                                    left join tipo_quarto tp on tp.id_tipo_quarto = th.id_tipo_quarto
-	                                    left join capacidade_tipo_quarto cpt on tp.id_tipo_quarto = cpt.id_tipo_quarto  and h.id_hotel = cpt.id_hotel
+	                            left join hotel h on h.id_hotel = th.id_hotel
+	                            left join localizacao l on l.id_localizacao = h.id_localizacao
+	                            left join tipo_quarto tp on tp.id_tipo_quarto = th.id_tipo_quarto
+	                            left join capacidade_tipo_quarto cpt on tp.id_tipo_quarto = cpt.id_tipo_quarto  and h.id_hotel = cpt.id_hotel
 
-	                                    where 1=1
-		                                    and th.data_inicio <= '{dataInicio}' 
-		                                    and th.data_fim  >= '{dataFim}' 
-		                                    and (l.localizacao like '%{localizacao}%' or h.nome like '%{localizacao}%')
+	                            where 1=1
+		                            and th.data_inicio <= '{dataInicio.ToString("yyyy-MM-dd")}' 
+		                            and th.data_fim  >= '{dataFim.ToString("yyyy-MM-dd")}' 
+		                            {(string.IsNullOrEmpty(localizacao) ? "": $"and (l.localizacao like '%{localizacao}%' or h.nome like '%{localizacao}%')")}
                                     ;";
 
             using (var connection = new SqlConnection(ConnectionString))
@@ -121,46 +176,65 @@ namespace Booki.Controllers
 
             return View(model);
         }
-        public ActionResult ReservarDestino(string jsonTarifa)
+        public ActionResult ReservarDestino(string jsonTarifa, string dataInicio, string dataFim, string nHospedes, string precoTotal)
         {
+            ViewBag.LoggedIn = IsLoggedIn();
+
             var tarifaModel = jsonTarifa.DeserializeFromJson<TarifasModel>();
+            var utilizador = GetUserLogged();
 
-            string sql = $@"INSERT INTO utilizador (
-                                    [username],
-                                    [password],
-                                    [nome_completo],
-                                    [email],
-                                    [morada],
-                                    [codigo_postal],
-                                    [id_localizacao]
-                                   ) VALUES (
-                                    @username,
-                                    @password,
-                                    @nome_completo,
-                                    @email,
-                                    @morada,
-                                    @codigo_postal,
-                                    @id_localizacao)";
+            string sql = $@"INSERT INTO reserva_hotel(
+                                    [data_inicio],
+                                    [data_fim],
+                                    [nr_hospedes],
+                                    [id_tarifa_hotel],
+                                    [id_utilizador],
+                                    [preco_total],
+                                    [apagado]
+                                    ) VALUES (
+                                    @data_inicio,
+                                    @data_fim,
+                                    @nr_hospedes,
+                                    @id_tarifa_hotel,
+                                    @id_utilizador,
+                                    @preco,
+                                    @apagado)";
 
-            //using (var connection = new SqlConnection(ConnectionString))
-            //using (var command = new SqlCommand(sql, connection))
-            //{
-            //    connection.Open();
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
 
-            //    command.Parameters.AddWithValue("@username", model.Username);
-            //    command.Parameters.AddWithValue("@password", model.Password);
-            //    command.Parameters.AddWithValue("@nome_completo", model.Nome);
-            //    command.Parameters.AddWithValue("@email", model.Email);
-            //    command.Parameters.AddWithValue("@morada", model.Morada);
-            //    command.Parameters.AddWithValue("@codigo_postal", model.CodigoPostal);
-            //    command.Parameters.AddWithValue("@id_localizacao", model.IdLocalizacao);
+                command.Parameters.AddWithValue("@data_inicio", Convert.ToDateTime(dataInicio));
+                command.Parameters.AddWithValue("@data_fim", Convert.ToDateTime(dataFim));
+                command.Parameters.AddWithValue("@nr_hospedes", Convert.ToInt16(nHospedes));
+                command.Parameters.AddWithValue("@id_tarifa_hotel", tarifaModel.IdTarifa);
+                command.Parameters.AddWithValue("@preco", Convert.ToDecimal(precoTotal));
+                command.Parameters.AddWithValue("@id_utilizador", utilizador.IdUser);
+                command.Parameters.AddWithValue("@apagado", false);
 
-            //    command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
 
-            //    connection.Close();
-            //}
+                connection.Close();
+            }
 
-            return PartialView();
+            return Json(new { });
+        }
+        public ActionResult CancelarReserva(string idReserva)
+        {
+            string sql = $@"UPDATE reserva_hotel SET apagado = 1 WHERE id_reserva_hotel = {Convert.ToInt16(idReserva)}";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+
+               
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
+            return Json(new { });
         }
     }
 }

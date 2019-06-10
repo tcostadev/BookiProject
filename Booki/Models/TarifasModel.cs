@@ -26,4 +26,20 @@ namespace Booki.Models
         public DateTime DataFim { get; set; }
         public List<TarifasModel> ListaTarifas { get; set; }
     }
+    public class ReservasModel
+    {
+        public int IdReserva { get; set; }
+
+        public DateTime DataInicio { get; set; }
+        public DateTime DataFim { get; set; }
+        public string NrHospedes { get; set; }
+        public string Preco { get; set; }
+        public string PrecoUnidade { get; set; }
+        public string LocalizacaoHotel { get; set; }
+        public string TipoQuarto { get; set; }
+        public string NomeHotel { get; set; }
+        public string MoradaCompleta { get; set; }
+        public string Classificacao { get; set; }
+        public bool Apagado { get; set; }
+    }
 }

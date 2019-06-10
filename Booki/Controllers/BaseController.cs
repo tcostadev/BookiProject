@@ -24,5 +24,9 @@ namespace Booki.Controllers
         {
             Session[SessionUtilizador] = null;
         }
+        public LoginModel GetUserLogged()
+        {
+            return (LoginModel)Session[SessionUtilizador];
+        }
     }
 }

@@ -54,6 +54,11 @@ function OnClickPesquisar(urlAction) {
         return;
     }
 
+    if (new Date(dataInicio) < new Date()) {
+        ShowNotification("A data de inicio tem que ser maior que o dia atual!", "alert-warning", 7500);
+        return;
+    }
+
     location.href = urlAction + '?dataInicio=' + dataInicio + '&dataFim=' + dataFim + '&localizacao=' + localizacao;
 }
 
@@ -68,21 +73,52 @@ function OnClickReservarDestino(idTarifa) {
     $("#C_data_inicio").val($("#data_inicio").val());
     $("#C_data_fim").val($("#data_fim").val());
     $("#C_n_noites").val(nNoites);
-    $("#C_tipo_quarto").text(objTarifa.DesignacaoTipoQuarto);
+    $("#C_TipoQuarto").val(objTarifa.DesignacaoTipoQuarto);
     $("#C_total").val(precoUni * nNoites + "€");
 
     $('#reserva_destino').modal('show');
 }
 
 function OnClickConfirmarReserva(url) {
-    $.ajax({
+    var objTarifa = JSON.parse($("#TarifaJson").val());
+
+    if ($("#NHospedes").val() === "") {
+        return;
+    }
+
+    if (objTarifa.Capacidade < parseInt($("#NHospedes").val())) {
+        ShowNotification("A capacidade do quarto escolhido é de: " + objTarifa.Capacidade + " hóspede", "alert-warning", 7500);
+        return;
+    }
+
+    $.post({
         url: url,
         data: {
             jsonTarifa: $("#TarifaJson").val(),
+            nHospedes: $("#NHospedes").val(),
+            dataInicio: $("#C_data_inicio").val(),
+            dataFim: $("#C_data_fim").val(),
+            precoTotal: $("#C_total").val()
         },
         success: function (result) {
             ShowNotification("A reserva foi efetuada com sucesso", "alert-success", 7500);
             $('#reserva_destino').modal('hide');
         }
     });
+}
+
+function OnClickCancelarReserva(idReserva, url) {
+    var response = confirm("Tem a certeza que pretende cancelar esta reserva?");
+    if (response == true) {
+        $.post({
+            url: url,
+            data: {
+                idReserva: idReserva
+            },
+            success: function (result) {
+                ShowNotification("A reserva foi cancelada!", "alert-success", 7500);
+                setTimeout(location.reload(), 300);
+            }
+        });
+    } 
 }

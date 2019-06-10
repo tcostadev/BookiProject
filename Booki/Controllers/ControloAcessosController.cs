@@ -61,8 +61,13 @@ namespace Booki.Controllers
             }
             else
             {
-                ModelState.AddModelError("Password", "Credenciais erradas");
-                return PartialView(model);
+                return Json(new
+                {
+                    Notify = true,
+                    Message = "Credenciais erradas",
+                    Type = "alert-warning",
+                    Time ="7500"
+                });
             }
                 
 

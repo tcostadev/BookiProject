@@ -118,7 +118,11 @@
                                             <tr id="@tarifa.IdTarifa" data-object="@tarifa.Serialize2Json()">
                                                 <th scope="row">
                                                     @tarifa.DesignacaoTipoQuarto
-                                                    <span class="info-quartos-disp">Quartos disponiveis: @tarifa.NumeroQuartosDisponiveis</span>
+
+                                                    @if (tarifa.NumeroQuartosDisponiveis.HasValue && tarifa.NumeroQuartosDisponiveis > 0)
+                                                    {
+                                                        <span class="info-quartos-disp">Quartos disponiveis: @tarifa.NumeroQuartosDisponiveis</span>
+                                                    }
                                                 </th>
                                                 <td>
                                                     <span class="capacidade-ico">
@@ -175,9 +179,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input id="TarifaJson" type="hidden"/>
+                    <input id="TarifaJson" type="hidden" />
 
-                    <div class="row">
+                    <div class="row" style="margin-top: 5px;">
                         <div class="col-md-3">
                             <label>Data Check-in</label>
                             <input class="form-control" type="text" disabled id="C_data_inicio" />
@@ -193,6 +197,22 @@
                         <div class="col-md-3">
                             <label>Preço total</label>
                             <input class="form-control" type="text" disabled id="C_total" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-3">
+                            <label>Quarto escolhido</label>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" type="text" disabled id="C_TipoQuarto" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-md-3">
+                            <label>Núm. Hospedes</label>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" type="number" id="NHospedes" />
                         </div>
                     </div>
                     <hr />

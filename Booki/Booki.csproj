@@ -151,6 +151,9 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\CustomStyle.css" />
+    <Content Include="Content\Images\lisboa.jpg" />
+    <Content Include="Content\Images\faro.jpg" />
+    <Content Include="Content\Images\porto.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -229,6 +232,7 @@
     <Content Include="Views\ControloAcessos\EditarPerfil.cshtml" />
     <Content Include="Views\Reservas\SearchDestinos.cshtml" />
     <Content Include="Views\Administracao\Index.cshtml" />
+    <Content Include="Views\Reservas\ViewReservas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
