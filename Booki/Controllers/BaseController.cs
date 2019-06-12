@@ -9,7 +9,7 @@ namespace Booki.Controllers
 {
     public abstract partial class BaseController : Controller
     {
-        public string ConnectionString = "Data Source=LEGION-Y530;Initial Catalog=Booki;User ID=sa;Password=tiagoIsmai2019";
+        public string ConnectionString = "Data Source=DESKTOP-DIVT7IR;Initial Catalog=Booki;User ID=sa;Password=vascocrespo1997";
         public string SessionUtilizador = "SessionUtilizador";
 
         public void LogInUser(LoginModel userLoggedIn)

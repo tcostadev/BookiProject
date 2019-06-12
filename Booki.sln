@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.539
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booki", "Booki\Booki.csproj", "{48F1063A-5A7F-46CA-8082-1B9A5C705F5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booki.UnitTests", "Booki.UnitTests\Booki.UnitTests.csproj", "{BE2FA214-38E9-4FC9-A912-6D81C3664C1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{48F1063A-5A7F-46CA-8082-1B9A5C705F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48F1063A-5A7F-46CA-8082-1B9A5C705F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48F1063A-5A7F-46CA-8082-1B9A5C705F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE2FA214-38E9-4FC9-A912-6D81C3664C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE2FA214-38E9-4FC9-A912-6D81C3664C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE2FA214-38E9-4FC9-A912-6D81C3664C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE2FA214-38E9-4FC9-A912-6D81C3664C1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
