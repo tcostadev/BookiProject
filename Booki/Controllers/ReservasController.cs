@@ -22,6 +22,8 @@ namespace Booki.Controllers
 
             var utilizador = (LoginModel)Session[SessionUtilizador];
 
+            var model = new SearchDestinosModel();
+
             var listaReservas = new List<ReservasModel>();
 
             var getReservasUser = $@"SELECT 
@@ -64,7 +66,7 @@ namespace Booki.Controllers
                 {
                     while (reader.Read())
                     {
-                        var newTarifa = new ReservasModel
+                        var newReserva = new ReservasModel
                         {
                             IdReserva = Convert.ToInt32(reader["id_reserva_hotel"]),
                             DataInicio = Convert.ToDateTime(reader["data_inicio"]),
@@ -78,25 +80,72 @@ namespace Booki.Controllers
                             TipoQuarto = reader["designacao"].ToString(),
                             Preco = reader["preco_total"].ToString(),
                             PrecoUnidade = reader["preco_unidade"].ToString(),
-                            Apagado = Convert.ToBoolean(reader["apagado"]),
-                            Artigos = reader["artigos"].ToString(),
+                            Apagado = Convert.ToBoolean(reader["apagado"])
                         };
 
-                        if (!string.IsNullOrEmpty(newTarifa.Artigos))
+                        var sqlGetArtigosreserva = $@"SELECT *
+                                         FROM reserva_servicos rs
+                                         left join artigos a on a.id_artigo = rs.id_artigo
+                                         WHERE rs.id_reserva_hotel = {newReserva.IdReserva}";
+
+                        using (var conn = new SqlConnection(ConnectionString))
+                        using (var cm = new SqlCommand(sqlGetArtigosreserva, conn))
                         {
-                            var art = newTarifa.Artigos.Replace("<designacao>", ", ").Replace("</designacao>", ", ");
-                            newTarifa.Artigos = art;
+                            conn.Open();
+                            using (var read = cm.ExecuteReader())
+                            {
+                                while (read.Read())
+                                {
+                                    var newArtigo = new ArtigosModel
+                                    {
+                                        IdArtigo = Convert.ToInt32(read["id_artigo"]),
+                                        Designacao = read["designacao"].ToString(),
+                                        PermitePreMarcacao = Convert.ToBoolean(read["permite_pre_marcacao"]),
+                                        Preco = Convert.ToDecimal(read["preco"])
+                                    };
+
+                                    newReserva.Artigos.Add(newArtigo);
+                                }
+                            }
+
+                            conn.Close();
                         }
 
-                        listaReservas.Add(newTarifa);
+                        listaReservas.Add(newReserva);
                     }
                 }
 
                 connection.Close();
             }
 
+            var sqlGetArtigos = "SELECT * FROM artigos;";
 
-            return View("ViewReservas", listaReservas);
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sqlGetArtigos, connection))
+            {
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var newArtigo = new ArtigosModel
+                        {
+                            IdArtigo = Convert.ToInt32(reader["id_artigo"]),
+                            Designacao = reader["designacao"].ToString(),
+                            PermitePreMarcacao = Convert.ToBoolean(reader["permite_pre_marcacao"]),
+                            Preco = Convert.ToDecimal(reader["preco"])
+                        };
+
+                        model.ListaArtigos.Add(newArtigo);
+                    }
+                }
+
+                connection.Close();
+            }
+
+            model.ListaReservas = listaReservas;
+
+            return View("ViewReservas", model);
         }
         public ActionResult SearchDestinos(DateTime dataInicio, DateTime dataFim, string localizacao)
         {
@@ -303,6 +352,51 @@ namespace Booki.Controllers
 
                 connection.Close();
             }
+            return Json(new { });
+        }
+        public ActionResult AlterarReserva(string idReserva, string servicos)
+        {
+            // remove todos os associados
+
+            string sql = $@"DELETE FROM reserva_servicos WHERE reserva_servicos.id_reserva_hotel = {Convert.ToInt16(idReserva)}";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+
+            var listaServicos = new List<int>();
+            if (!string.IsNullOrEmpty(servicos) && servicos != "[]")
+            {
+                //remove todos os servicos associados á reserva e adiciona os selecionados na view
+
+                 listaServicos = JsonHelper.DeserializeFromJson<List<int>>(servicos);
+
+                foreach (var servico in listaServicos)
+                {
+                    var sqlInsertArtigos = $@"DECLARE @preco decimal(18, 0);
+                                            SELECT @preco = a.preco FROM artigos a where a.id_artigo = {servico} ;
+
+                                            INSERT INTO reserva_servicos
+	                                            (id_artigo, 
+	                                            id_reserva_hotel, 
+	                                            preco_total, 
+	                                            quantidade) 
+	                                            VALUES ({servico}, {Convert.ToInt16(idReserva)}, @preco, 1)";
+
+                    using (var connection = new SqlConnection(ConnectionString))
+                    using (var command = new SqlCommand(sqlInsertArtigos, connection))
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        connection.Close();
+                    }
+                }
+            }
+            
             return Json(new { });
         }
     }

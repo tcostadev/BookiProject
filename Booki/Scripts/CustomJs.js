@@ -109,7 +109,7 @@ function OnClickConfirmarReserva(url) {
             nHospedes: $("#NHospedes").val(),
             dataInicio: $("#C_data_inicio").val(),
             dataFim: $("#C_data_fim").val(),
-            precoTotal: $("#C_total").val(),
+            precoTotal: $("#C_total_inicial").val(),
             listServicos: JSON.stringify(listaServicos)
         },
         success: function (result) {
@@ -134,4 +134,47 @@ function OnClickCancelarReserva(idReserva, url) {
             }
         });
     } 
+}
+
+function OnClickEditReserva(reserva) {
+    $("#multi_pedidos").find("input[type=checkbox]").prop("checked", false).trigger("change");
+
+    var artReserva = $("#reserva_" + reserva).find("#artigos_reserva").val();
+    if (artReserva !== undefined && artReserva !== "") {
+        artReserva = JSON.parse(artReserva);
+
+        $.each(artReserva, function (elem, value) {
+
+            $("#multi_pedidos").find("#pedido_" + value).prop("checked", true).trigger("change");
+
+        });
+    }  
+
+    $("#reserva_edit").val(reserva);
+    $('#editar_reserva').modal('show');
+}
+
+function OnClickConfirmarAlteracoes(url) {
+    
+    var listaServicos = [];
+
+    var servicosSelected = $("#multi_pedidos").find("input[type=checkbox]:checked");
+    if (servicosSelected !== undefined && servicosSelected.length > 0) {
+        $.each(servicosSelected, function (index, value) {
+            listaServicos.push($(value).attr("id_artigo"));
+        });
+    }
+
+    $.post({
+        url: url,
+        data: {
+            idReserva: $("#reserva_edit").val(),
+            servicos: JSON.stringify(listaServicos)
+        },
+        success: function (result) {
+            ShowNotification("Alterações gravadas com sucesso!", "alert-success", 7500);
+            $('#editar_reserva').modal('hide');
+            setTimeout(location.reload(), 300);
+        }
+    });
 }

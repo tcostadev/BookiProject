@@ -235,19 +235,24 @@
                         @foreach (var artigo in Model.ListaArtigos)
                         {
                             <div class="custom-control custom-checkbox mb-3">
-                                <input type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
-                                <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
-                                    @artigo.Designacao
+                                @if(artigo.Preco == 0)
+                                {
+                                    <input checked type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
+                                    <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
+                                        @artigo.Designacao
                                     
-                                    @if (artigo.Preco == 0)
-                                    {
                                         <span class="gratis">Incluido</span>
-                                    }
-                                    else
-                                    {
+                                    </label>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
+                                    <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
+                                        @artigo.Designacao
+                                    
                                         <span>@artigo.Preco €</span>
-                                    }
-                                </label>
+                                    </label>
+                                }
                             </div>
                         }
                     </div>

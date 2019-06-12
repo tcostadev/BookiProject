@@ -1,4 +1,5 @@
-﻿@model List<Booki.Models.ReservasModel>
+﻿@using Booki.Helper
+@model Booki.Models.SearchDestinosModel
 
 @{
     ViewBag.Title = "Ver Reservas";
@@ -13,15 +14,44 @@
         font-size: 11px;
         color: #ffdb0f;
     }
+
     .hotel-morada {
         display: block;
         font-size: 11px;
         font-style: italic;
     }
-    .reserva-cancel{
+
+    .reserva-cancel {
         color: red;
         font-size: 14px;
+        font-weight: bold;
     }
+
+    .reserva-complete {
+        color: #11d911;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .reserva-today {
+        color: #227ac9;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    #multi_pedidos {
+        max-width: 50%;
+        width: 100%;
+    }
+
+        #multi_pedidos span {
+            font-weight: bold;
+            float: right;
+        }
+
+            #multi_pedidos span.gratis {
+                color: #59bb11;
+            }
 </style>
 
 <div class="container-fluid">
@@ -34,12 +64,13 @@
                 <th scope="col">Pedidos / Serviços</th>
                 <th scope="col">Preço Total (€)</th>
                 <th scope="col">#</th>
+                <th scope="col">#</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var reserva in Model)
+            @foreach (var reserva in Model.ListaReservas)
             {
-                <tr>
+                <tr id="reserva_@reserva.IdReserva">
                     <td>
                         @reserva.NomeHotel
                         <span class="classificacao-ico">
@@ -55,18 +86,60 @@
                         @reserva.DataInicio.ToShortDateString() / @reserva.DataFim.ToShortDateString()
                     </td>
                     <td>
-                        @reserva.TipoQuarto (@reserva.PrecoUnidade p/noite)
-                    </td>
-                     <td>
-                        @reserva.Artigos
+                        @reserva.TipoQuarto (@reserva.PrecoUnidade € p/noite)
                     </td>
                     <td>
-                        @reserva.Preco
+                        @if (reserva.Artigos.Any())
+                        {
+                            <input type="hidden" id="artigos_reserva" value="@reserva.Artigos.Select(x => x.IdArtigo).ToList().Serialize2Json()" />
+                        }
+                        else
+                        {
+                            <input type="hidden" id="artigos_reserva" value="" />
+                        }
+
+                        @foreach (var artigo in reserva.Artigos)
+                        {
+                            <span>
+                                @artigo.Designacao - @(artigo.Preco == 0 ? "Incluido" : artigo.Preco.ToString())
+                            </span>
+                            <br />
+                        }
+                    </td>
+                    <td>
+                        @if (reserva.Artigos.Any())
+                        {
+
+                            var precoQuarto = Convert.ToDecimal(reserva.Preco);
+                            var somaArtigos = reserva.Artigos.Sum(x => x.Preco);
+
+                            <span>@(precoQuarto + somaArtigos)</span>
+                        }
+                        else
+                        {
+                            @reserva.Preco
+                        }
+                    </td>
+                    <td>
+                        @if (!reserva.Apagado && reserva.DataInicio > DateTime.Now)
+                        {
+                            <a class="btn btn-danger no-width" onclick="OnClickEditReserva(@reserva.IdReserva)">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        }
                     </td>
                     <td>
                         @if (reserva.Apagado)
                         {
-                            <p class="reserva-cancel">Reserva cancelada</p>
+                            <p class="reserva-cancel">Reserva cancelada.</p>
+                        }
+                        else if (reserva.DataInicio.Day == DateTime.Now.Day)
+                        {
+                            <p class="reserva-today">Faça o check-in hoje.</p>
+                        }
+                        else if (reserva.DataInicio < DateTime.Now)
+                        {
+                            <p class="reserva-complete">Reserva concluida.</p>
                         }
                         else
                         {
@@ -79,5 +152,52 @@
             }
         </tbody>
     </table>
-    
+</div>
+
+<!-- MODAL PARA RESERVAR O DESTINO -->
+<div class="modal fade" id="editar_reserva" tabindex="-1" role="dialog" aria-labelledby="modal_lbl" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_lbl">Alterações de Pedidos / Serviços</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+                <input type="hidden" id="reserva_edit"/>
+
+                <div id="multi_pedidos">
+                    @foreach (var artigo in Model.ListaArtigos)
+                    {
+                        <div class="custom-control custom-checkbox mb-3">
+                            @if (artigo.Preco == 0)
+                            {
+                                <input type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
+                                <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
+                                    @artigo.Designacao
+
+                                    <span class="gratis">Incluido</span>
+                                </label>
+                            }
+                            else
+                            {
+                                <input type="checkbox" class="custom-control-input" id="pedido_@artigo.IdArtigo" preco="@artigo.Preco" id_artigo="@artigo.IdArtigo" name="artigos_selected">
+                                <label class="custom-control-label" for="pedido_@artigo.IdArtigo" style="width: 100%">
+                                    @artigo.Designacao
+
+                                    <span>@artigo.Preco €</span>
+                                </label>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="OnClickConfirmarAlteracoes('@Url.Action("AlterarReserva")')">Confirmar Alterações</button>
+            </div>
+        </div>
+    </div>
 </div>
