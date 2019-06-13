@@ -160,6 +160,16 @@ namespace Booki.Controllers
                 ListaArtigos = new List<ArtigosModel>()
             };
 
+            if (dataInicio >= dataFim)
+            {
+                return Json(new {
+                    Notify = true,
+                    Message = "Data de inicio não pode ser maior que data de fim",
+                    Type = "alert-warning",
+                    Time = "7500"
+                });
+            }
+            
             var dataInicioDt = Convert.ToDateTime(dataInicio);
             var dataFimDt = Convert.ToDateTime(dataInicio);
             var listaTarifas = new List<TarifasModel>();
